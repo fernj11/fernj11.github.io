@@ -1,18 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
-
-    <title>Example Student's HCDE 439 Physical Computing Page!</title>
-
-    <link href="style.css" rel="stylesheet" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fernando's HCDE 439 Physical Computing Assignment</title>
+    <link href="style.css" rel="stylesheet" />
   </head>
   <body>
-    <h1>Example Student's Assignment 1!</h1>
+    <h1>Fernando's Blink Assignment 1</h1>
+    
+    <!-- Introduction -->
     <div class="header">
-      <img src="red-panda.jpg" />
-      <p>Here is all the documentation for assignment 1!</p>
+      <img src="a1_top_view.jpg" alt="Top view of Assignment 1 setup" />
     </div>
+    <p>The top view of the breadboard connected to the Arduino board.</p>
+    
+    <!-- Schematic Section -->
+    <section>
+      <h2>Red Light Schematic</h2>
+      <div class="grid">
+        <img src="a1_schematic.jpg" alt="Schematic diagram of Assignment 1" />
+      </div>
+      <p>Schematic of the red LED. There are three separate for the three LEDS, however they have the same design. They are connected to their respective ports, then go to a 220 ohm-resistor, which then goes through the LED to ground.</p>
+    </section>
+    
+    <!-- Resistance Section -->
+    <section>
+      <h2>Calculation for Resistance</h2>
+      <div class="grid">
+        <img src="a1_resistance.jpg" alt="Resistance measurement of the circuit" />
+      </div>
+      <p>Calculation of resistance needed. There is five volts available but the red LED uses 1.8 volts leaving 3.2 volts available. Using the equation pictured above we can calculate the resistor needed using the 3.2 volts available and desired current of 20mA. Leaving 160 ohms so we use the 220 ohm resistor.</p>
+    </section>
+    
+    <!-- Arduino Code Section -->
+    <section>
+      <h2>Arduino Code</h2>
+      <pre><code>
+// the setup function runs once when you press reset or power the board
+void setup() {
+  // initialize digital pin LED_BUILTIN as an output.
+  pinMode(LED_BUILTIN, OUTPUT); // first pin in circuit
+  pinMode(12, OUTPUT);          // second pin in circuit
+  pinMode(11, OUTPUT);          // third pin in circuit
+}
+
+// the loop function runs over and over again forever
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);  // turn the LED on (HIGH is the voltage level)
+  delay(1000);                      // wait for a second
+  digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
+  delay(1000);                      // wait for a second
+  
+  digitalWrite(12, HIGH);           // turn the second LED on
+  delay(1000);                      // wait for a second
+  digitalWrite(12, LOW);            // turn the second LED off
+  delay(1000);                      // wait for a second
+
+  digitalWrite(11, HIGH);           // turn the third LED on
+  delay(1000);                      // wait for a second
+  digitalWrite(11, LOW);            // turn the third LED off
+  delay(1000);                      // wait for a second
+}
+      </code></pre>
+    </section>
+    
+    <!-- Video Section -->
+    <section>
+      <h2>Red Lights in Action</h2>
+      <video src="Video.mov" controls muted autoplay>
+        Your browser does not support the video tag.
+      </video>
+    </section>
+    
+    <!-- Questions Section -->
+    <section>
+      <h2>Questions</h2>
+      <div class="grid">
+        <p>
+          <strong>Q1:</strong> Draw a graph where the X-axis is time and the Y-axis is voltage across the LEDs. Draw a line for each of your 3 LEDs.
+        </p>
+        <img src="a1_graph.jpg" alt="Graph of voltage vs. time for LEDs" />
+      </div>
+      
+      <p>
+        <strong>Q2:</strong> How many LEDs could you blink independently with your Arduino? How much current would that draw?
+      </p>
+      <p>There are 14 ports on the Arduino that could be used to blink independently, but the limit of the Ardunio board is 200mA
+         and if we attempt for 20mA per light then we can calculate that it would be safe to have 10 LEDs at a time. 
+      </p>
+      <p>
+        <strong>Q3:</strong> How fast do you need to blink your LEDs until you no longer can tell that they are blinking?
+      </p>
+      <p>
+        I began to lower the amount of time between blinks until it was at 3 milliseconds. At this point, I couldn't determine if the lights were blinking or not.
+      </p>
+    </section>
   </body>
 </html>
