@@ -1,18 +1,99 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
-
-    <title>Example Student's HCDE 439 Physical Computing Page!</title>
-
-    <link href="style.css" rel="stylesheet" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fernando's HCDE 439 Physical Computing Assignment</title>
+    <link href="style.css" rel="stylesheet" />
   </head>
   <body>
-    <h1>Example Student's Assignment 2!</h1>
+    <h1>Fernando's Fade Assignment 2</h1>
+    
+    <!-- Introduction -->
     <div class="header">
-      <img src="red-panda.jpg" />
-      <p>Here is all the documentation for assignment 2!</p>
+      <img src="a2_top_view.jpg" alt="Top view of Assignment 2 setup" />
     </div>
+    <p>The top view of the breadboard connected to the Arduino board.</p>
+    
+    <!-- Schematic Section -->
+    <section>
+      <h2>LED & Button Schematic and Resistance</h2>
+      <div class="grid">
+        <img src="a2_schematic.jpg" alt="Schematic diagram for Fade" />
+      </div>
+      <p>Schematic and resistance of the LEDs and button. There are separate calculations for the LEDS, however they have the same design. They are connected to their respective ports,
+         that go to a 220 ohm-resistor with the exception of 100 for the blue LED. After the LED to complete the circuit it goes to ground.</p>
+      <p>For calculations of the resistance needed. There is five volts available but the red LED uses 1.8 volts leaving 3.2 volts available. Using the equation pictured above we can calculate the resistor needed using the 3.2 volts available and desired current of 20mA. Leaving 160 ohms so we use the 220 ohm resistor. This would also work for the green LED as it uses the same amount of volts as the red. For the blue it would be a slightly different calculation because there is a 3.3 voltage drop instead.</p>
+    </section>
+    
+    <!-- Arduino Code Section -->
+    <section>
+      <h2>Arduino Code</h2>
+      <pre><code>
+        // Initialize the state variable for the button (0 = not pressed, 1 = pressed)
+        int state = 0;
+        
+        void setup() {
+          // Configure pin 2 as an input to read the button state
+          pinMode(2, INPUT);   
+          // Configure pins 3, 5, and 6 as outputs to control the LEDs
+          pinMode(3, OUTPUT);  
+          pinMode(5, OUTPUT);  
+          pinMode(6, OUTPUT);
+        }
+        void loop() {
+          // Read the state of the button connected to pin 2
+          state = digitalRead(2); 
+        
+          // Check if the button is pressed
+          if (state == HIGH) { 
+            // If the button is pressed, turn off all LEDs by setting their brightness to 0
+            analogWrite(3, 0); // Turn off LED on pin 3
+            analogWrite(5, 0); // Turn off LED on pin 5
+            analogWrite(6, 0); // Turn off LED on pin 6
+          } else {
+            // If the button is not pressed, perform a fading effect
+        
+            // Fade in all LEDs from 0 to 255
+            for (int i = 0; i <= 255; i++) {
+              analogWrite(3, i); // Increase brightness for pin 3
+              analogWrite(5, i); // Increase brightness for pin 5
+              analogWrite(6, i); // Increase brightness for pin 6
+              delay(10);         // Delay for the fade
+            }
+        
+            // decrease brightness from 255 to 0
+            for (int i = 255; i >= 0; i--) {
+              analogWrite(3, i); // Decrease brightness for pin 3
+              analogWrite(5, i); // Decrease brightness for pin 5
+              analogWrite(6, i); // Decrease brightness for pin 6
+              delay(10);         // Delay for the fade
+            }
+          }
+        }        
+      </code></pre>
+    </section>
+    
+    <!-- Video Section -->
+    <section>
+      <h2>Fade in Action</h2>
+      <video src="a2_video.mp4" controls muted autoplay>
+        Your browser does not support the video tag.
+      </video>
+    </section>
+    
+    <!-- Questions Section -->
+    <section>
+      <h2>Questions</h2>
+      <div class="grid">
+        <img src="a2_graph.jpg" alt="Graph of voltage vs. time for LEDs" />
+        <p>
+          <strong>Q1:</strong> Draw a chart where the X axis is time and the Y axis is voltage. Draw 3 lines representing the voltage across an LED with analogWrite(led, 64), analogWrite(led, 128), and analogWrite(led,255).
+        </p>
+      </div>
+        <img src="a2_problem.jpg" alt="Graph of voltage vs. time for LEDs" />
+        <p><strong>Q2:</strong> Given your schematic, circuit, and firmware, assuming the only thing that draws current is your LEDs, how long would your circuit run if powered by a 1200 mAh battery?</p>
+      <p>For this calculation you have to split it up into the blue LED, separate from the red and green LED. From there the calculation for the current is done, and because of the fade you can take the average of the current. From there you divide the 1200mAh by the current averages of the LEDs.</p>
+    </section>
   </body>
 </html>
