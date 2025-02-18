@@ -136,18 +136,18 @@
                     WRITE motor2_pin2 = LOW
                 }
             }
-            
+
             // Main loop that uses the function to move the motors
             void loop() {
-                CALL moveMotors("forward")
+                moveMotors("forward")
                 Delay
-                CALL moveMotors("backward")
+                moveMotors("backward")
                 Delay
-                CALL moveMotors("forward_backward")
+                moveMotors("forward_backward")
                 Delay
-                CALL moveMotors("backward_forward")
+                moveMotors("backward_forward")
                 Delay
-                CALL moveMotors("stop")
+                moveMotors("stop")
                 Delay
             }
             
