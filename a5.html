@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fernando's HCDE 439 Physical Computing Assignment</title>
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <h1>Fernando's High(er) Assignment 5</h1>
+    
+    <!-- Introduction -->
+    <div class="header">
+      <img src="a5_top_view.jpg" alt="Top view of Assignment 5 setup" />
+    </div>
+    <p>The top view of the Arduino board connected to the LED strip, ultra sonic sensor, and transistor.</p>
+    
+    <!-- Schematic Section -->
+    <section>
+      <h2>Ultra Sonic Sensor & Transistor Schematic</h2>
+      <div class="grid">
+        <img src="a5_schematic.jpg" alt="Schematic for Ultra Sonic Sensor & Transistor" />
+      </div>
+      <p>Schematic for the ultra sonic sensor and transistor. For the purpose of reducing excess noise I used resistors for the transistor. With a 10k and 220 ohm resistor respectively.</p>
+      </section>
+    
+    <!-- Arduino Code Section -->
+    <section>
+      <h2>Arduino Code</h2>
+      <pre><code>
+        // Initialize the pins that will be used (Trigger, Echo, and LEDs)
+        int TRIG_PIN = 11;   
+        int ECHO_PIN = 10;  
+        int LEDS_PIN = 9; 
+
+
+        void setup() {
+            pinMode(TRIG_PIN, OUTPUT);  // Set trigger pin as output
+            pinMode(ECHO_PIN, INPUT);   // Set echo pin as input
+            pinMode(LEDS_PIN, OUTPUT); // Set LEDs control pin as output
+            Serial.begin(9600); // Initialize the serial.begin to write later
+  
+            analogWrite(LEDS_PIN, 0); // Start with LEDs off
+        }
+
+        void loop() {
+            // Send a short pulse to trigger the ultrasonic sensor
+            digitalWrite(TRIG_PIN, LOW);
+            delayMicroseconds(2);
+            digitalWrite(TRIG_PIN, HIGH);
+            delayMicroseconds(10);
+            digitalWrite(TRIG_PIN, LOW);
+
+            // Read the echo pin and calculate the distance by reading the value and converting to cm
+            long duration = pulseIn(ECHO_PIN, HIGH); 
+            int distance = duration * 0.034 / 2; 
+
+            // Print out how far away it is sensing something
+            Serial.print("Reading: ");
+            Serial.print(distance);
+            Serial.println(" cm away!");
+
+            // Map the distance to PWM range and make it so closer is brighter
+            int brightness = map(distance, 5, 50, 255, 0);
+            // Constrain the values within 0-255
+            brightness = constrain(brightness, 0, 255);
+
+            // Control LED brightness through the LED pin
+            analogWrite(LEDS_PIN, brightness);
+            // Delay between loops
+            delay(100);
+        }
+
+      </code></pre>
+    </section>
+    
+    <!-- Video Section -->
+    <section>
+      <h2>LEDs in Action with Sensor</h2>
+      <video src="a5_vid.mp4" controls muted autoplay>
+        Your browser does not support the video tag.
+      </video>
+    </section>
+    
+    <!-- Questions Section -->
+    <section>
+      <h2>Questions</h2>
+      <!-- <div class="grid"> -->
+        <p><strong>Q1:</strong> This is the datasheet for the n-mosfet: https://www.diodes.com/assets/Datasheets/DMT6009LCT.pdf. What is the absolute maximum amount of current between pins 2 and 3?</p>
+        <p>Depending on temperature from 25 to 100 degrees Celcius the continuous current ranges from 29.8A to 37.2A. However the maximum current from the schematic is 80A.</p>
+        <p><strong>Q2:</strong> Draw a schematic for a circuit with using at least your arduino, a DC motor, a flyback diode, and capacitors between power and ground. Find parts with datasheets you could use for each of these schematic components.</p>
+        <div class="grid">
+            <img src="a5_q2_fr.jpg" alt="Question 2 Schematic" />
+        </div>
+        <p><strong>Q3:</strong> Here is the datasheet for the L293D chip: https://www.ti.com/product/L293D. Draw a schematic using at least your arduino, this chip, and two motors. Write (pseudo) code that shows how you would move the motors both forward, both back, then one forward one back, and one back then forward.</p>
+        <div class="grid">
+            <img src="a5_q3_schematic.jpg" alt="Question 3 Schematic" />
+        </div>
+        <pre><code>
+            // Initialize pins
+            FUNCTION setup() {
+                SET motor1_pin1 AS OUTPUT
+                SET motor1_pin2 AS OUTPUT
+                SET motor2_pin1 AS OUTPUT
+                SET motor2_pin2 AS OUTPUT
+                SET enable1 AS OUTPUT
+                SET enable2 AS OUTPUT
+            }
+            
+            // Function to drive motors in different directions
+            Function moveMotors(direction) {
+                IF (direction == forward) {
+                    WRITE motor1_pin1 = HIGH
+                    WRITE motor1_pin2 = LOW
+                    WRITE motor2_pin1 = HIGH
+                    WRITE motor2_pin2 = LOW
+                } ELSE IF (direction == backward) {
+                    WRITE motor1_pin1 = LOW
+                    WRITE motor1_pin2 = HIGH
+                    WRITE motor2_pin1 = LOW
+                    WRITE motor2_pin2 = HIGH
+                } ELSE IF (direction == forward_backward) { 
+                    WRITE motor1_pin1 = HIGH
+                    WRITE motor1_pin2 = LOW
+                    WRITE motor2_pin1 = LOW
+                    WRITE motor2_pin2 = HIGH
+                } ELSE IF (direction == backward_forward) {
+                    WRITE motor1_pin1 = LOW
+                    WRITE motor1_pin2 = HIGH
+                    WRITE motor2_pin1 = HIGH
+                    WRITE motor2_pin2 = LOW
+                } ELSE {
+                    WRITE motor1_pin1 = LOW
+                    WRITE motor1_pin2 = LOW
+                    WRITE motor2_pin1 = LOW
+                    WRITE motor2_pin2 = LOW
+                }
+            }
+            
+            // Main loop that uses the function to move the motors
+            void loop() {
+                CALL moveMotors("forward")
+                Delay
+                CALL moveMotors("backward")
+                Delay
+                CALL moveMotors("forward_backward")
+                Delay
+                CALL moveMotors("backward_forward")
+                Delay
+                CALL moveMotors("stop")
+                Delay
+            }
+            
+      </code></pre>
+    <!-- </div> -->
+      <p>For the code you have initialize the several different pins that are used by the chip and what motors they will be controlling. From there a function is created to move the appropriate motor to get the desired function of movement. In the loop we then call the different functions: both forward, both backward, then one forward and the other backward and vice versa.</p>
+    </section>
+  </body>
+</html>
