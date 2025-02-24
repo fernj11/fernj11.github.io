@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fernando's HCDE 439 Physical Computing Assignment</title>
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <h1>Fernando's Talk to the Web Assignment 6</h1>
+    
+    <!-- Introduction -->
+    <div class="header">
+      <img src="a6_top_view.jpeg" alt="Top view of Assignment 5 setup" />
+    </div>
+    <p>The top view of the Arduino board connected to the red LED and joystick.</p>
+    
+    <!-- Schematic Section -->
+    <section>
+      <h2>LED & Joystick Schematic</h2>
+      <div class="grid">
+        <img src="a6_schematic.jpeg" alt="Schematic for LED & Joystick" />
+      </div>
+      <p>Schematic for the red LED where we use a 220 ohm resistor for an ideal 20mA current. We got this using the V=I*R formula. There is also the schematic for the joystick.</p>
+      </section>
+    
+    <!-- Arduino Code Section -->
+    <section>
+      <h2>Arduino Code</h2>
+      <pre><code>
+// Initialize the inputs for the joystick and LED
+int joystickX = A0;
+int joystickY = A1;
+int joystickSW = 2;
+int ledPin = 12;
+
+// Set up the serial monitor and the input of the joystick and output of the LED
+void setup() {
+    Serial.begin(9600);
+    pinMode(joystickSW, INPUT_PULLUP);
+    pinMode(ledPin, OUTPUT);
+}
+
+void loop() {
+    // Find the values of the x and y coordinates of the joystick as well as read when the joystick button is pressed
+    int xVal = analogRead(joystickX);
+    int yVal = analogRead(joystickY);
+    int buttonState = digitalRead(joystickSW);
+
+    // Joystick info is sent to p5.js by using Serial.print
+    Serial.print(xVal);
+    Serial.print(",");
+    Serial.print(yVal);
+    Serial.print(",");
+    Serial.println(buttonState); // Button state isn't used
+
+    // From p5.js wait for the input on the screen of pressing the button to turn on or off the LED
+    if (Serial.available() > 0) {
+        // Read the input from p5.js, when pressed it changes to 1 initially and LED is on
+        // If it is pressed again then the command is changed back to 0 and the LED is off
+        char command = Serial.read();
+        if (command == '1') {
+            digitalWrite(ledPin, HIGH); // LED turned on
+        } else if (command == '0') {
+            digitalWrite(ledPin, LOW); // LED turned off
+        }
+    }
+    // Small delay in the loop
+    delay(50);
+}
+
+      </code></pre>
+    </section>
+    
+    <section>
+        <h2>A6 index.js Code</h2>
+        <pre><code>
+const BAUD_RATE = 9600;
+const MIN_DIAMETER = 10; 
+const MAX_DIAMETER = 40;
+            
+let port, connectBtn, ledBtn; // Variables for serial port and buttons
+let ledOn = false; // LED state (start at off)
+            
+function setup() {
+    setupSerial(); // Initialize serial communication
+    createCanvas(windowWidth, windowHeight); // Create a canvas screen
+            
+    // Button to toggle the LED
+    ledBtn = createButton("Toggle LED");
+    ledBtn.position(windowWidth / 2 - 50, windowHeight - 50); // Button is at bottom of screen in middle
+    ledBtn.mousePressed(toggleLED); // Changed LED state
+}
+            
+function draw() {
+    const portIsOpen = checkPort(); // Check if serial connection is active
+    if (!portIsOpen) return; // If not connected, don't run the rest of draw()
+            
+    let str = port.readUntil("\n"); // Read incoming serial data until new line
+    if (str.length == 0) return; // Do nothing if nothing received
+            
+    let arr = str.trim().split(","); // Split the received data by comma for data
+            
+    // Map joystick values from 0-1023 to canvas (screen) width and height
+    let x = map(Number(arr[0]), 0, 1023, 0, windowWidth);
+    let y = map(Number(arr[1]), 0, 1023, 0, windowHeight);
+            
+    background(220); // Clear the canvas each frame
+            
+    // Blue circle representing joystick position
+    fill("blue");
+    ellipse(x, y, 20, 20);
+            
+    // Joystick values and LED status
+    fill(0);
+    textSize(16);
+    text(`Joystick X: ${arr[0]}`, 20, 60);
+    text(`Joystick Y: ${arr[1]}`, 20, 80);
+    text(`LED Status: ${ledOn ? "ON" : "OFF"}`, 20, 100);
+}
+
+// Toggle LED state and send signal to Arduino
+function toggleLED() {
+    ledOn = !ledOn; // Flip LED state
+    port.write(ledOn ? '1' : '0'); // Send '1' for ON and '0' for OFF to arduino
+}
+
+// Function to set up serial communication with arduino
+function setupSerial() {
+    port = createSerial();
+    let usedPorts = usedSerialPorts();
+    if (usedPorts.length > 0) {
+        port.open(usedPorts[0], BAUD_RATE); 
+    }
+
+    // Create and position the Connect to Arduino button
+    connectBtn = createButton("Connect to Arduino");
+    connectBtn.position(5, 5);
+    connectBtn.mouseClicked(onConnectButtonClicked);
+}
+
+// Function to check if the port is connected
+function checkPort() {
+    if (!port.opened()) { 
+        connectBtn.html("Connect to Arduino"); // Update button text
+        background("gray"); // Change background to gray
+        return false; // False if not connected
+    } else {
+        connectBtn.html("Disconnect"); // If connected then change button text
+        return true; // True if connected
+    }
+}
+
+// Function to handle connect/disconnect button
+function onConnectButtonClicked() {
+    if (!port.opened()) { 
+        port.open(BAUD_RATE);
+    } else { 
+        port.close();
+    }
+}
+        </code></pre>
+    </section>
+    <!-- Video Section -->
+    <section>
+      <h2>Joystick Moving Dot & Button Turning on LED</h2>
+      <video src="a6_video.mov" controls muted autoplay>
+        Your browser does not support the video tag.
+      </video>
+    </section>
+  </body>
+</html>
